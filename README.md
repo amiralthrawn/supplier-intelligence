@@ -721,7 +721,7 @@ Et enfin :
 
 Partie 4 : exploitation continue d'un ensemble de données pouvant dépasser 30 métriques lorsque le produit et les sources le permettent.
 
-Et je garderais absolument ton idée de validation empirique : les chiffres 10 / 15 / 20 / +30 sont pour l'instant nos objectifs de conception, pas encore des vérités du produit. On devra tester sur plusieurs familles de produits pour voir si 30+ variables apportent réellement de la valeur ou si certaines deviennent redondantes.
+Et je garderais absolument l idée de validation empirique : les chiffres 10 / 15 / 20 / +30 sont pour l'instant nos objectifs de conception, pas encore des vérités du produit. On devra tester sur plusieurs familles de produits pour voir si 30+ variables apportent réellement de la valeur ou si certaines deviennent redondantes.
 
 
 
@@ -1543,4 +1543,96 @@ Supplier Analysis → quel est le profil du fournisseur ?
 Opportunity Engine → où sont les opportunités ?
 Recommendation → quelles sont les probabilités et scénarios associés ? Et quelle action paraît la plus rationnelle compte tenu de ces résultats ?
 
+
+Quelle profondeur historique doit-on fournir au client ?
+
+
+12 mois glissants comme référence standard.
+
+pour : 
+saisonnalité ;
+évolution des prix ;
+différentes conditions de marché ;
+plusieurs commandes ;
+évolution du fournisseur ;
+périodes de hausse/baisse ;
+suffisamment d'observations pour commencer à comparer.
+
+Mais ce n'est pas une règle absolue.
+
+Si le fournisseur travaille avec le client depuis 3 ans, on peut exploiter davantage d'historique si cela apporte réellement quelque chose.
+
+Et si la relation n'existe que depuis 5 mois, on travaille avec les 5 mois disponibles et on indique clairement la profondeur.
+
+Donc :
+
+12 mois = fenêtre standard de référence, pas obligation de disposer de 12 mois.
+
+
+Le véritable produit est :
+
+Donner au grossiste une vision actualisée de la compétitivité de ses achats par rapport au marché observable.
+
+L'historique sert juste à :
+
+comprendre + comparer + détecter + démontrer la valeur.
+
+
+étudier des méthodologies existantes de price assessment / price discovery sur des marchés comparables, notamment commodities/OTC, comprendre comment elles traitent :
+
+données asynchrones ;
+transactions ;
+bids/offers ;
+différentes qualités ;
+différents lieux ;
+différents volumes ;
+sources de fiabilité différente ;
+manque de liquidité ;
+observations aberrantes ;
+
+puis déterminer ce qui est transposable à notre cas.
+
+
+| Étape                           | Ce qu'on fait                                                   | Outil principal                   | V1 ? |
+| ------------------------------- | --------------------------------------------------------------- | --------------------------------- | ---- |
+| **1. Acquisition**              | Collecter données client, fournisseurs, marché, web, fichiers   | **Python + Excel/CSV + APIs/Web** | ✅    |
+| **2. Sélection**                | Garder les données pertinentes selon produit/besoin             | **Python + Pandas**               | ✅    |
+| **3. Qualification**            | Nettoyage, validation, contrôle de cohérence                    | **Python + Pandas**               | ✅    |
+| **4. Data Reliability**         | Quality / Freshness / Provenance / Coverage → scores            | **Python**                        | ✅    |
+| **5. Normalisation**            | Unités, devises, produits, volumes, Incoterms, conditions       | **Python + PostgreSQL**           | ✅    |
+| **6. Market Benchmark**         | Construire la référence de marché et positionner le fournisseur | **Python + PostgreSQL**           | ✅    |
+| **7. Supplier Analysis**        | Compétitivité, Performance, Risque                              | **Python + PostgreSQL**           | ✅    |
+| **8. Opportunity Engine**       | Détection et priorisation des opportunités                      | **Python**                        | ✅    |
+| **9. Recommendation**           | Transformer les opportunités en recommandations achats          | **Python**                        | ✅    |
+| **10. Continuous Intelligence** | Mise à jour automatique, alertes, recalculs                     | **n8n + Python**                  | ⏳    |
+| **Interface / Dashboard**       | Présenter les résultats au client                               | **Power BI** ou **Plotly/Dash**   | ⏳    |
+
+
+Data
+
+Python
+
+Pandas
+NumPy
+SciPy
+éventuellement scikit-learn plus tard
+Database
+
+PostgreSQL
+
+Visualisation / recherche analytique
+
+Plotly
+
+Restitution client
+
+Power BI au début
+
+Automatisation
+
+n8n plus tard
+
+Développement
+
+VS Code + Git + GitHub
 
