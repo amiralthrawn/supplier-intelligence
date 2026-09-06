@@ -1,332 +1,215 @@
 # supplier-intelligence
 Supplier and procurement intelligence system for wholesale businesses
 
-Le problème est maintenant beaucoup plus clairement défini
-
-Je le formaliserais ainsi :
+1. Problème identifié
 
 Un grossiste qui dépend de fournisseurs historiques (fixe) dispose d'une excellente connaissance de ses propres fournisseurs, mais d'une visibilité insuffisante sur la compétitivité réelle du marché.
 
-Cela crée plusieurs risques :
+Origine du projet
+L'idée est née à la croisée de deux expériences distinctes menées à la même période (début 2026) :
+Un travail sur un projet d'arbitrage sur les marchés de commodities, en particulier sur la volatilité des prix du pétrole depuis le début de l'année 2026 — une volatilité qui a généré de nombreuses opportunités de marché.
+En parallèle, dans le cadre d'une recherche d'alternance, l'exploration de plusieurs sites de grossistes travaillant dans l'import-export, où il est apparu que plusieurs grossistes ne dépendaient que d'un seul fournisseur par produit.
+L'idée : transposer la logique de compétitivité de marché et de vision globale (utilisée sur les marchés de commodities comme le pétrole) au monde de l'import-export, sous forme de service destiné aux grossistes — en particulier ceux dépendants d'un seul fournisseur par produit.
 
-risque prix : son fournisseur augmente ses tarifs alors que le marché baisse ;
-risque de dépendance : il n'a pas d'alternative immédiatement identifiée ;
-risque logistique : un fournisseur devient moins performant sur les délais ou les coûts de transport ;
-risque qualité : qualité variable du produit en fonction des périodes selon sa provenance ;
-risque commercial : conditions de paiement, MOQ, volumes disponibles, etc. ;
-risque d'opportunité : un concurrent devient beaucoup plus intéressant et le grossiste ne le sait pas.
-
-Mon produit ne dit pas :
-
-« Changez de fournisseur. »
-
-Il dit :
-
-« Voici objectivement où se situe votre fournisseur par rapport aux alternatives disponibles sur le marché. »
-
-C'est une distinction fondamentale.
-
-
-Collaboration indispensable avec les spécialistes du marché
-
-Je ne peux pas devenir expert simultanément en :
-
-pétrole ;
-cacao ;
-kaolin ;
-huiles végétales ;
-farine ;
-actifs cosmétiques ;
-etc.
-
-Mon role est seulement :
-
-Data / Intelligence
-
-Je construis :
-
-pipeline de données ;
-nettoyage ;
-normalisation ;
-comparaison ;
-statistiques ;
-modèles ;
-scoring ;
-détection d'anomalies ;
-simulation ;
-dashboard / reporting.
-
-
-L'expert du grossiste : Procurement / Commodity
-
-Il m'apporte :
-
-connaissance des fournisseurs ;
-qualité acceptable ;
-contraintes réglementaires ;
-spécifications techniques ;
-saisonnalité ;
-réalité du marché ;
-fournisseurs réellement crédibles ;
-informations difficiles à obtenir automatiquement.
-
-
-Le système combine les deux.
-
-C'est beaucoup plus crédible qu'un système prétendant tout savoir et tout regler automatiquement.
-
-
-
-
-                                 ┌──────────────────────┐
-                                 │       GROSSISTE      │
-                                 │        CLIENT        │
-                                 └──────────┬───────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 1. BESOIN / PROBLÈME      │
-                              │                           │
-                              │ Manque de visibilité sur  │
-                              │ la compétitivité de ses   │
-                              │ fournisseurs              │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                     ┌──────────────────────────────────────────┐
-                     │       2. ACQUISITION DES DONNÉES         │
-                     └─────────────────────┬────────────────────┘
-                                           │
-             ┌─────────────────────────────┼─────────────────────────────┐
-             │                             │                             │
-             ▼                             ▼                             ▼
-
-   DONNÉES DÉJÀ DISPONIBLES       DONNÉES À OBTENIR              DONNÉES À ACQUÉRIR
-          CHEZ LE CLIENT            PAR LE CLIENT                  PAR NOUS
-             │                             │                             │
-             │                             │                             │
-     ┌───────┴────────┐            ┌───────┴────────┐          ┌─────────┴─────────┐
-     │                │            │                │          │                   │
-     ▼                ▼            ▼                ▼          ▼                   ▼
-Données sur       Données de    Informations    Données     Données marché    Données marché
-ses propres       marché déjà   que le client   obtenues   publiques          spécialisées    ------->  
-fournisseurs      connues       va rechercher   auprès de   accessibles        payantes
-                                  lui-même      sources
-     │                │            │                │          │                   │
-     │                │            │                │          │                   │
-     │                │            │                │          │                   │
-     │                │            │                │          │                   │
-     │                │            │                │          │                   │
-     └────────────────┴────────────┴────────────────┴──────────┴───────────────────┘
-                                           │
-                                           ▼
-                              ┌───────────────────────────┐
-                              │ 3. TRI / SÉLECTION DATA   │
-                              │                           │
-                              │ Quelles données sont      │
-                              │ pertinentes pour l'offre │
-                              │ du client ?               │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 4. QUALIFICATION DES      │
-                              │         DONNÉES           │
-                              │                           │
-                              │ Qualité                   │
-                              │ Fraîcheur                 │
-                              │ Provenance                │
-                              │ Couverture                │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 5. DATA RELIABILITY       │
-                              │         SCORE             │
-                              │          /100             │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 6. NORMALISATION DATA     │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 7. MARKET BENCHMARK       │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 8. SUPPLIER ANALYSIS      │
-                              │                           │
-                              │ Prix                      │
-                              │ Qualité                   │
-                              │ Délais                    │
-                              │ Logistique                │
-                              │ Conditions commerciales   │
-                              │ etc.                      │
-                              └─────────────┬─────────────┘
-                                            │
-                              ┌─────────────┴─────────────┐
-                              ▼                           ▼
-                     SUPPLIER PERFORMANCE        RISK / EXPOSURE
-                          SCORE                   DEPENDANCE
-                              │                           │
-                              └─────────────┬─────────────┘
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 9. OPPORTUNITY ENGINE     │
-                              └─────────────┬─────────────┘
-                                            │
-                                            ▼
-                              ┌───────────────────────────┐
-                              │ 10. RECOMMANDATION ACHATS │
-                              └─────────────┬─────────────┘
-                                            │
-                              ┌─────────────┼─────────────┐
-                              ▼             ▼             ▼
-                         RENÉGOCIATION  ALTERNATIVE   MAINTIEN
-
-
-2. Acquisition des données
-
-A — Données déjà disponibles chez le client
-
-Ce que le grossiste possède déjà dans ses systèmes/documents :
-
-fournisseurs actuels ;
-prix d'achat ;
-volumes ;
-historique ;
-délais ;
-qualité ;
-transport ;
-conditions de paiement ;
-contrats ;
-etc.
-
-B — Informations de marché déjà connues par le client
-
-Et ça, c'est différent.
-
-Le client peut déjà savoir :
-
-que son fournisseur vend également à d'autres entreprises ;
-que certains clients paient moins/plus cher ;
-qu'il existe d'autres fournisseurs ;
-qu'un fournisseur concurrent est réputé intéressant ;
-qu'une certaine origine est meilleure ;
-etc.
-
-Ce sont des informations de marché détenues par le client, même si elles ne sont pas dans son ERP.
-
-C — Données que le client va chercher lui-même
-
-Le client peut dire :
-
-« Je connais trois fournisseurs supplémentaires, je vais les contacter et leur demander un devis. »
-
-Je récupères ensuite ces informations et je les intègres au système.
-
-C'est important parce que je ne paie pas l'acquisition, mais la donnée peut être extrêmement intéressante.
-
-D — Données publiques que Je recherches
-
-C'est la première partie d'offre :
-
-Données client
-+
-Données marché déjà connues
-+
-Données obtenues par le client
-+
-Données publiques recherchées par moi
-        ↓
-PREMIÈRE ANALYSE
-
-Je peux aller chercher des informations supplémentaires pour couvrir la fiabilité des donnée transmise par le fournisseur initial et aussi pour intégrer de nouveau fournisseur à l'analyse. 
-
-fournisseurs ;
-catalogues ;
-prix publiés ;
-informations commerciales ;
-certifications ;
-pays d'origine ;
-capacités apparentes ;
-données douanières ;
-indices ;
-etc.
-
-E — Données supplémentaires nécessitant une acquisition
-
-Et là, on arrive aux offres supérieures.
-
-Certaines données :
-
-ne sont pas publiques ;
-sont payantes ;
-nécessitent une base spécialisée ;
-nécessitent un accès professionnel ;
-nécessitent une collecte humaine.
-
-Je peux donc les acheter directement.
-
-Et enfin :
-
-F — Données nécessitant une collecte sous-traitée
-
-Lorsque la collecte nécessite :
-
-sourcing spécialisé ;
-appels ;
-demandes de devis ;
-vérifications ;
-expertise sectorielle ;
-enquête de marché ;
-
-Je fais intervenir une agence, un expert ou un prestataire spécialisé.
-
-
-Si on observe que Concurrent X → fournisseur Y
-
-on ne peut pas conclure :
-
-« Fournisseur Y peut proposer au client 7,20 €/kg. »
-
-On peut seulement conclure :
-
-« Fournisseur Y constitue une source potentielle à investiguer. »  
-
-Et ça change la façon dont je construirais le produit
-
-
-                   Grossiste
-                       │
-                       ↓
-                DONNÉES INTERNES
-                       │
-                       ↓
-              ┌─────────────────┐
-              │ DATA ENGINE     │
-              │                 │
-              │ Normalisation   │
-              │ Benchmark       │                    Partie 1 de l'offre (traitement de donnée interne + source de marché accessible) 
-              │ Scoring         │
-              │ Statistics      │
-              │ Simulation      │
-              └────────┬────────┘
-                       ↑
-                       │
-          DONNÉES DE MARCHÉ (sous traité)
-                       ↑
-                       │
-          ┌────────────┼────────────┐                Partie 2 de l'offre (ajout de traitement de données de marché) le client paie pour : 
-          │            │            │                . recherches de fournisseurs supplémentaires 
-       Agence       Expert       Database            . données de marché spécialisées 
-       sourcing     marché       spécialisée         . collecte de devis 
-                                                     . vérifications de certaines informations 
-                                                     . données commerciales professionnelles.
+Les 6 risques lié au problème :
+
+
+Point clé : ces risques ne sont pas de simples signaux à remonter, ils sont quantifiables à partir de données puis transformables en décisions. C'est là que se situe la vraie valeur ajoutée du système
+
+Risque prix — le fournisseur augmente ses prix alors que le marché comparable évolue dans le sens inverse. Exemple : en janvier, fournisseur à 7,00 €/kg contre un benchmark à 7,10 €/kg. En avril, fournisseur à 7,60 €/kg contre un benchmark à 6,90 €/kg. Le problème n'est pas que le fournisseur devient "cher" en absolu, c'est que son positionnement se détériore relativement au marché (+8,6 % fournisseur vs −2,8 % marché) — ce qui peut alimenter une opportunité de renégociation ou de recherche d'alternative.
+
+Risque de dépendance — le grossiste dépend fortement d'un fournisseur sans alternative suffisamment identifiée. Exemple : un grossiste achète 80 % de son beurre de cacao auprès d'un seul fournisseur (origine particulière, délais importants, aucune alternative qualifiée disponible immédiatement). Même compétitif aujourd'hui, le grossiste reste vulnérable à une hausse de prix, un problème de production, une rupture ou une dégradation des délais. Le système ne dit pas "quittez ce fournisseur", mais plutôt : "le maintenir peut être rationnel économiquement, mais identifier une seconde source réduirait l'exposition."
+
+Risque logistique — le prix n'est pas nécessairement le problème. Exemple : fournisseur A à 7,00 €/kg mais délai passé de 15 à 28 jours, coût transport +12 %, taux de retard passé de 3 % à 14 %. Fournisseur B à 7,15 €/kg mais délai stable de 12 jours, transport stable, peu de retards. A paraît moins cher sur le prix seul, mais l'avantage peut disparaître une fois les conditions logistiques intégrées — d'où l'importance de la normalisation et des conditions commerciales.
+
+Risque qualité — le fournisseur reste compétitif en prix mais la qualité devient moins régulière. Exemple : conformité qualité passée de 98 % à 89 % sur certaines périodes/origines, sans changement de prix — générant lots refusés, retraitement, pertes, retours. Le système peut chercher une relation temporelle (changement d'origine → évolution qualité → hausse des anomalies), ce qui est plus riche qu'un simple taux de défaut brut.
+
+Risque commercial — le fournisseur est compétitif en prix facial mais moins intéressant dans les conditions réelles de transaction. Exemple : fournisseur A à 7,00 €/kg avec MOQ de 10 tonnes et paiement à 30 jours vs fournisseur B à 7,20 €/kg avec MOQ de 1 tonne et disponibilité immédiate. Pour un besoin de 2 tonnes, les 20 centimes d'écart ne racontent pas toute l'histoire — A peut être économiquement moins intéressant dans ce contexte. Le Benchmark doit comparer des conditions comparables, pas seulement des prix.
+
+Risque d'opportunité — probablement le point le plus porteur de valeur. Ce n'est pas "quelque chose de mauvais va arriver", mais "quelque chose d'intéressant est disponible, mais le client ne le voit pas". Exemple : un grossiste travaille depuis 3 ans avec A à 7,40 €/kg. Une nouvelle source B apparaît sur le marché observable à 6,90 €/kg, mais n'est pas connue du grossiste. Le système détecte l'écart (A = 7,40 €, benchmark = 7,00 €, B = 6,90 €) et identifie une opportunité potentielle — mais l'analyse automatisé doit ensuite qualifier cette opportunité (qualité, MOQ, Incoterm, origine, délais, fiabilité des données de B), pas simplement repérer le prix le plus bas.
+
+Le timing, en dimension transversale à ces risques : une opportunité peut être plus intéressante demain qu'aujourd'hui, ou l'inverse. Exemple : fournisseur A à 7,40 €/kg, marché à 7,20 €/kg, mais tendance baissière observée sur plusieurs mois → scénario central à 3 mois estimé à 6,85 €/kg, probabilité de passer sous 7,00 € à 68 %. Ce n'est pas une prédiction certaine, c'est une représentation probabiliste de l'incertitude, qui peut changer la décision : attendre si le marché risque de baisser, sécuriser un volume si le marché risque de monter, répartir les achats en cas de forte incertitude. 
+
+Vision produit :
+Le système ne se limite pas à dire « vous payez 7,40 € alors que le marché est à 7,00 € » — un bon acheteur peut éventuellement le découvrir seul. L'ambition est de pouvoir dire, progressivement : « Voici votre position actuelle. Voici pourquoi elle est ainsi. Voici les risques auxquels vous êtes exposé. Voici les opportunités détectées. Et compte tenu de l'évolution observée et des scénarios possibles, voici les décisions envisageables et leurs conséquences. »
+Ce passage d'un outil de reporting à un véritable outil d'aide à la décision achats implique une exigence de rigueur méthodologique croissante sur le Benchmark : plus on avance vers la décision et la prédiction, plus le coût d'une donnée ou d'une méthode erronée augmente.
+
+
+
+2. Fonctionnement global
+Répartition des rôles
+
+Le porteur du projet ne peut pas devenir expert simultanément de chaque marché (pétrole, cacao, kaolin, huiles végétales, farine, actifs cosmétiques, etc.). Son rôle est circonscrit à Data / Intelligence : pipeline de données, nettoyage, normalisation, comparaison, statistiques, modèles, scoring, détection d'anomalies, simulation, dashboard/reporting.
+
+En complément, le rôle Procurement / Commodity est porté côté grossiste : soit par un spécialiste data interne au grossiste, soit par le grossiste lui-même s'il gère cette fonction personnellement. Ce n'est pas un expert externe mobilisé par le porteur du projet — c'est bien un interlocuteur qui appartient à l'organisation du client, et qui apporte la connaissance des fournisseurs, la qualité acceptable, les contraintes réglementaires, les spécifications techniques, la saisonnalité, la réalité du marché, les fournisseurs réellement crédibles, et les informations difficiles à obtenir automatiquement.
+
+Le système combine les deux — jugé plus crédible qu'un système prétendant tout savoir et tout régler automatiquement seul.
+
+En dehors de ces points de contact (acquisition et qualification des données, voir ci-dessous), l'ensemble du pipeline (tri, normalisation, benchmark, supplier analysis, opportunity engine, recommandation) est réalisé  par le porteur du projet.
+
+Les 4 étapes de la relation client
+
+Étape 0 — Prise de contact / démonstration (avant signature, gratuite)
+
+Le client transmet un minimum d'informations. Le porteur du projet les compare à des informations d'autres fournisseurs et produit un premier résultat de démonstration, sur 3 à 4 données par fournisseur. Charge de travail réduite, niveau de fiabilité volontairement plus faible. Objectif du message : « l'an dernier, vous auriez pu... ». Cette démonstration sert de base à la décision de signer ou non.
+
+Palier I — Premier projet réel (une fois signé)
+
+Ressemble à la démo mais avec le processus complet exécuté (les 10 étapes en détail), sur environ 10 métriques par fournisseur. Résultat : un chiffrage quantitatif des choix que le client peut prendre dès maintenant, avec les implications de chaque choix.
+
+Palier II — Enrichissement (si le client veut plus de certitude)
+
+Si le client souhaite augmenter le taux de fiabilité de l'analyse ou couvrir des données non prises en compte précédemment : passage à 15-20 données, potentiellement incluant des données payantes.
+
+Palier III — Le plus premium
+
+Plus de 30 données : l'ensemble des données disponibles sur le produit, avec un appel à des professionnels du marché pour obtenir des données supplémentaires — possible volet de sous-traitance à ce niveau.
+
+Continuous Intelligence — option transversale, pas une 5ᵉ étape
+
+Accessible dès le Palier I, indépendamment du niveau de données choisi. Le client signe un contrat pour recevoir une analyse à la fréquence souhaitée (mensuelle, trimestrielle...), avec le volume de données de son choix (10, 20 ou 30+) à chaque nouvelle analyse.
+
+Ce que le client transmet (une fois engagé, Paliers I à III)
+Le périmètre de l'analyse — produits et fournisseurs respectifs soumis à l'analyse.
+Les données concomitantes à l'analyse — prix d'achat, volumes, historique, délais, qualité, transport, conditions de paiement, pays d'origine, etc.
+Les données secondaires, variables selon le produit — non indispensables à l'analyse de base mais potentiellement précieuses selon le contexte : origine de production, principal importateur du produit en France, écarts de prix du fournisseur selon les clients, connaissance d'autres fournisseurs potentiels, etc. Liste amenée à évoluer produit par produit.
+Une hiérarchie de préférences propre au produit — le client (ou son spécialiste Procurement/Commodity) classe ce qui compte le plus dans l'engagement avec un fournisseur, du plus important au moins important (ex. qualité dominante pour la farine, prix dominant pour une huile). Configure directement la pondération du scoring.
+Des données additionnelles à la demande — dans la limite du volume de métriques du Palier souscrit.
+
+Ce que le prestataire apporte en plus, selon le Palier
+Palier I : donnée multi-fournisseurs que le client n'a probablement pas le temps de rechercher lui-même (Catégorie D).
+Palier II : donnée plus difficile à obtenir, nécessitant acquisition, potentiellement payante (Catégorie E).
+Palier III : donnée obtenue via des spécialistes externes — agence de sourcing, expert marché, base spécialisée (Catégorie F).
+
+Point de méthode déjà posé : une observation indirecte (ex. "Concurrent X achète chez fournisseur Y") ne permet jamais de conclure sur un prix accessible ("Y peut proposer 7,20 €/kg"), seulement qu'il s'agit d'une source potentielle à investiguer.
+
+Restitution du résultat
+
+Rapport (docx, potentiellement accompagné d'un volet Excel — à trancher), volontairement simple et brut. L'effort est mis sur le cœur du produit plutôt que sur l'automatisation ou la mise en forme de la restitution, jugée secondaire à ce stade.
+
+Délai de livraison
+
+Aucun délai encore défini — première expérience du porteur de projet dans cet exercice. Seul engagement actuel : livraison la plus rapide possible, plafond indicatif de moins d'un mois.
+
+
+
+3. Architecture du produit
+Principe général
+
+L'architecture repose sur la combinaison de quatre couches indépendantes qui se superposent sans se confondre :
+
+Étapes (1 à 10) — l'axe technique : le pipeline de traitement, toujours parcouru dans le même ordre.
+Catégories (A à F) — l'axe des sources : d'où vient chaque donnée injectée dans le pipeline.
+Paliers (I à IV) — l'axe commercial : combien de données sont traitées, et donc jusqu'où le pipeline est "rempli".
+Continuous Intelligence — l'axe temporel : rejoue le pipeline périodiquement sur des données mises à jour.
+
+Le Data Engine est le nom donné au sous-système qui exécute les Étapes 5 à 9 (Data Reliability → Normalisation → Market Benchmark → Supplier Analysis → Opportunity Engine) — le cœur calculatoire du produit, une fois les données acquises, triées et qualifiées.
+
+Schéma d'ensemble
+
+                               GROSSISTE
+                                   │
+                                   ▼
+                  DONNÉES INITIALEMENT DISPONIBLES
+                                   │
+                  ┌────────────────┴────────────────┐
+                  ▼                                 ▼
+          DONNÉES FOURNIES                 DONNÉES RECHERCHÉES
+           PAR LE CLIENT                        PAR NOUS
+                  │                                 │
+                  └────────────────┬────────────────┘
+                                   ▼
+                      ÉTAPE 0 — PREMIÈRE ANALYSE (démo)
+                                   │
+                                   ▼
+                         PRÉSENTATION AU CLIENT
+                                   │
+                  ┌────────────────┴────────────────┐
+                  ▼                                 ▼
+           N'ACCEPTE PAS                        ACCEPTE
+                  │                                 │
+                  ▼                                 ▼
+           FIN DE MISSION                   ╔═══════════════╗
+                                            ║   PALIER I    ║
+                                            ╚═══════╤═══════╝
+                                                    │
+                                     ┌──────────────┴──────────────┐
+                                     ▼                             ▼
+                          SPÉCIALISTE DATA /                DONNÉES SUPPL.
+                          PROCUREMENT DU CLIENT              FOURNISSEURS/MARCHÉ
+                                     └──────────────┬──────────────┘
+                                                    ▼
+                                          ÉTAPE 2 — ACQUISITION
+                                          (Catégories A à D)
+                                                    │
+                                                    ▼
+                                          ÉTAPE 3 — SÉLECTION
+                                          (≈10 métriques)
+                                                    │
+                                                    ▼
+                                    ┌───────────────────────────┐
+                                    │        DATA ENGINE         │
+                                    │        (Étapes 5-9)        │
+                                    └──────────────┬──────────────┘
+                                                   ▼
+                                        ÉTAPE 10 — RECOMMANDATION
+                                                   │
+                                        besoin supplémentaire ?
+                                                   ▼
+                                            ╔═══════════════╗
+                                            ║  PALIER II    ║
+                                            ║ (Catégorie E) ║
+                                            ╚═══════╤═══════╝
+                                                    ▼
+                                        ≈15-20 métriques → Data Engine → Recommandation
+                                                   │
+                                        besoin de données difficiles ?
+                                                    ▼
+                                            ╔═══════════════╗
+                                            ║  PALIER III   ║
+                                            ║ (Catégorie F) ║
+                                            ╚═══════╤═══════╝
+                                                    ▼
+                                        >30 métriques → Data Engine → Recommandation
+
+        PALIER I ──┐
+        PALIER II ─┼──→  activable vers  ──→  CONTINUOUS INTELLIGENCE (Palier IV)
+        PALIER III ┘
+
+Logique de montée en charge (Paliers)
+
+Chaque Palier ne repart pas de zéro : les données enrichies s'accumulent (Palier II = Palier I + nouvelles données de Catégorie E, Palier III = Palier II + nouvelles données de Catégorie F). Le Data Engine est retraversé à chaque Palier avec le jeu de données mis à jour, produisant une nouvelle Recommandation à chaque fois.
+
+Recommandation : recalcul complet du Data Reliability à chaque Palier, pas incrémental — au moins pour cette première version. Trois raisons :
+Défendabilité face au client. Si le score de fiabilité passe de 82 à 87 après enrichissement, je dois pouvoir expliquer pourquoi de façon limpide. Un recalcul complet se justifie simplement ("recalculé sur l'ensemble des données disponibles"). Un recalcul incrémental oblige à justifier une pondération ancien/nouveau score que tu n'as pas encore conçue — c'est un paramètre arbitraire de plus à défendre, alors que je cherche justement à réduire l'ambiguïté méthodologique.
+
+Cohérence avec : "plus tu vas vers la décision et la prédiction, plus le coût d'une mauvaise donnée ou d'une mauvaise méthode augmente". Un recalcul incrémental introduit un risque de dérive silencieuse (une erreur ancienne pèse indéfiniment, même diluée) — un recalcul complet repart d'une base saine à chaque fois.
+Simplicité d'implémentation pour un lancement terrain où je suis seul à tout exécuter manuellement — recalculer entièrement est mécaniquement plus simple qu'entretenir deux logiques de calcul (initial vs incrémental).
+Le recalcul incrémental garde un intérêt réel — coût de calcul plus faible, utile si un jour le produit tourne à grande échelle et en automatique — mais ce n'est pas le problème du lancement terrain. Je le mets en "piste d'optimisation future", pas en choix d'architecture actuel.
+Je fige donc ça comme choix par défaut (à confirmer/infirmer une fois testé en conditions réelles, comme tu le proposais), et je note la sélection de métriques comme non strictement additive : le passage à un Palier supérieur peut remplacer des données jugées trop marginales, ou répondre à une nouvelle analyse demandée par le client sans certaines métriques.
+
+Architecture du produit — mise à jour finale des deux points ouverts :
+Data Reliability Score : recalculé intégralement à chaque Palier, sur l'ensemble cumulé des données disponibles à ce stade (choix par défaut, à valider empiriquement — le recalcul incrémental reste une piste d'optimisation future).
+
+Sélection des métriques (Étape 3) : non strictement additive — une donnée retenue à un Palier peut être écartée au Palier suivant si elle s'avère marginale, ou à la demande du client pour une nouvelle analyse.
+
+
+
+4. Acquisition des données (Étape 2)
+Les 6 catégories de sources
+
+<img width="731" height="707" alt="Capture d’écran 2026-09-06 062244" src="https://github.com/user-attachments/assets/e7b09406-4149-4297-b52f-5ac20a096a50" />
+
+
+Correspondance avec les Paliers (déjà établie en section 2)
+Palier I mobilise les Catégories A, B, C et D — c'est la combinaison qui produit la première analyse complète (~10 métriques).
+Palier II ajoute la Catégorie E.
+Palier III ajoute la Catégorie F.
+Règle épistémologique fondamentale de l'acquisition
+
+Une observation indirecte ne vaut jamais une donnée directement exploitable. Exemple : si on observe que "Concurrent X achète chez fournisseur Y", on ne peut pas conclure "fournisseur Y peut proposer 7,20 €/kg au client" — on peut seulement conclure "fournisseur Y constitue une source potentielle à investiguer".
+
+Cette règle a une implication directe sur l'architecture : toute donnée acquise par inférence ou observation indirecte (typiquement en Catégorie B et D) doit être marquée comme non confirmée jusqu'à passage par l'Étape 4 (Qualification) — elle ne peut pas être traitée avec le même niveau de confiance qu'une donnée directement transmise ou vérifiée par contact (Catégorie A, C, F).
 
 
 Partie 3 — Continuous Intelligence
