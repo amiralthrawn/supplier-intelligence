@@ -212,25 +212,345 @@ Une observation indirecte ne vaut jamais une donnée directement exploitable. Ex
 Cette règle a une implication directe sur l'architecture : toute donnée acquise par inférence ou observation indirecte (typiquement en Catégorie B et D) doit être marquée comme non confirmée jusqu'à passage par l'Étape 4 (Qualification) — elle ne peut pas être traitée avec le même niveau de confiance qu'une donnée directement transmise ou vérifiée par contact (Catégorie A, C, F).
 
 
-Partie 3 — Continuous Intelligence
 
-Le client veut que le système soit surveillé régulièrement.
+5. Sélection des données (Étape 3)
+Question centrale
 
-Par exemple :
+« Parmi toutes les données récupérées, lesquelles décide-t-on de conserver pour l'analyse de ce produit ? »
 
-Analyse mensuelle / trimestrielle.
+Volumes cibles par Palier
+<img width="729" height="267" alt="Capture d&#39;écran 2026-09-06 063149" src="https://github.com/user-attachments/assets/f8fac228-2b9f-498a-98a8-4aa38b465e1e" />
 
-Le prestataire ou les sources externes alimentent la base.
+Ces volumes sont des objectifs de conception, pas des règles rigides — un minimum cible. Point de méthode assumé : ces chiffres (10/15/20/30+) devront être validés empiriquement sur plusieurs familles de produits, pour vérifier si un volume élevé de métriques apporte réellement de la valeur ou si certaines deviennent redondantes au-delà d'un certain seuil.
 
-Le système recalcule :
+Principe : la sélection n'est jamais universelle
 
-benchmark ;
-Supplier Performance Index ;
-évolution des prix ;
-évolution de la compétitivité ;
-opportunités de négociation ;
-alternatives.
+Le socle de 10 données du Palier I n'est pas un jeu de champs fixe et universel — il varie selon le produit. Exemple : pour une huile cosmétique, le socle porte principalement sur Produit, Prix, Devise, Unité, Date, Volume, Fournisseur, Origine, Qualité/grade, Conditions de livraison. Pour de la farine, la sélection change : Produit, Type de farine, Prix, Unité, Date, Volume, Fournisseur, Origine du blé, Taux de protéines, Qualité/classification.
 
+Autrement dit, le produit ne promet jamais "10 champs universels" — il promet une méthodologie de sélection adaptée à chaque produit et à l'objectif d'analyse du client.
+
+Cohérence avec la décision d'architecture (section 3)
+
+Comme tranché en section 3, la sélection n'est pas strictement additive : une donnée retenue au Palier I peut être écartée au Palier II ou III si elle s'avère marginale à l'usage, ou si le client demande une nouvelle analyse sans certaines métriques.
+
+Socle générique de départ (Palier I, ≈10 données)
+<img width="727" height="430" alt="Capture d&#39;écran 2026-09-06 063613" src="https://github.com/user-attachments/assets/f2479479-4938-4a75-ac15-caafc5ce751d" />
+
+Ce socle sert de point de départ standard, que le porteur du projet adapte ensuite au produit analysé — certains champs génériques (ex. Origine, Qualité/grade) sont remplacés par leurs équivalents plus précis et pertinents pour le produit (ex. pour la farine : Origine → Origine du blé ; Qualité/grade → Taux de protéines + Qualité/classification).
+
+Qui décide de la sélection
+
+C'est donc bien le porteur du projet, à partir de ce socle générique et de son jugement de data, qui fixe la sélection finale pour un produit donné — la hiérarchie de préférences transmise par le client (section 2) intervient, elle, au niveau de la pondération du scoring, pas au niveau du choix des champs eux-mêmes.
+
+(le reste de la section — volumes cibles par Palier, principe de non-universalité, non-additivité entre Paliers — reste inchangé, voir version précédente)
+
+
+
+6. Qualification des données (Étape 4)
+
+Chaque donnée est évaluée sur 4 critères indépendants, chacun noté /100, avant d'être agrégée en Data Reliability (Étape 5) :
+<img width="725" height="213" alt="Capture d&#39;écran 2026-09-06 063907" src="https://github.com/user-attachments/assets/b2bd37ec-19c5-4520-9b0b-3c4bf561b979" />
+
+Qualité
+
+Concerne le contenu même de l'observation — pas si le prix est bon ou mauvais, mais s'il est correctement contextualisé pour être comparable. Exemple : "Prix : 7,20 €/kg, Produit : Cocoa Butter, Date : 2026-08-15, Quantité : 1000 kg, Incoterm : FOB, Origine : Ghana, Qualité : Organic" est exploitable et normalisable. À l'inverse, "Cocoa Butter — 7,20 €/kg" seul est impossible à comparer correctement — il manque le contexte.
+
+Champs vérifiés : produit précisément identifié, unité, devise, quantité, date, origine, grade/qualité, Incoterm, lieu de livraison, MOQ, conditions commerciales.
+
+Principe : on ne récompense pas "beaucoup d'informations", mais la présence d'informations pertinentes et cohérentes qui permettent de contextualiser le prix.
+
+Fraîcheur
+
+Répond à : "cette observation représente-t-elle encore le marché ?" — mais fraîcheur ≠ simple âge de la donnée. Une donnée de 6 mois sur un marché stable peut rester utile ; une donnée de 6 jours sur un marché très volatil peut déjà être dégradée.
+
+Composition conceptuelle : âge de l'observation + volatilité du marché + fréquence de mise à jour.
+
+Pour la première version, une classification simple suffit (seuils à adapter par produit) :
+<img width="729" height="195" alt="Capture d&#39;écran 2026-09-06 064110" src="https://github.com/user-attachments/assets/bddfa0bd-682e-4cc9-807d-c888ee7379f3" />
+
+Piste future (non prioritaire) : une fonction de décroissance continue type Freshness(t) = e^(−λt), où λ dépendrait du type de marché — mais pas nécessaire pour la première analyse.
+
+Provenance
+
+Répond à : "d'où vient la donnée et comment a-t-elle été obtenue ?" — ici, on ne juge pas encore si la donnée est bonne, seulement son origine et sa chaîne d'acquisition.
+
+Types de source envisagés : Client/Transaction, Fournisseur/Devis, Recherche publique, Catalogue, Marketplace, Base de données, Index/Marché, Expert/Agence.
+
+Point important : la provenance décrit l'origine et le chemin de la donnée, pas sa qualité. Une donnée directement transmise par un fournisseur n'est pas automatiquement "vraie" du simple fait d'avoir une provenance bien identifiée — sa qualité est évaluée séparément, par le critère Qualité.
+
+Couverture
+
+"L'information est-elle suffisamment documentée par des sources pertinentes et indépendantes pour être considérée comme représentative et fiable ?"
+
+Point clé : ce n'est pas un simple comptage de sources. Cinq sources qui recopient toutes la même information primaire (ex. le tarif d'un fournisseur repris par un site, une marketplace, un annuaire, un article) ne constituent quasiment qu'une seule source primaire. À l'inverse, un devis fournisseur + une facture historique client + une base professionnelle sont des origines réellement différentes qui peuvent se recouper.
+
+La couverture tient donc compte de trois éléments combinés : nombre de sources pertinentes + indépendance des sources + cohérence entre elles.
+
+Exemple : Fournisseur A à 7,20 €/kg avec une seule source (devis fournisseur) vs Fournisseur B à 7,20 €/kg avec trois sources indépendantes (devis + historique client + base professionnelle) — B est potentiellement mieux couvert. Mais attention : ça ne veut pas dire que B est "meilleur" que A commercialement — la couverture sert à déterminer le niveau de confiance accordé à l'information, pas à juger directement le fournisseur.
+
+
+7. Data Reliability (Étape 5)
+Principe d'agrégation à deux niveaux
+
+Le point essentiel : le score final n'efface jamais les quatre composantes. Le client doit toujours pouvoir comprendre pourquoi il obtient un score donné, pas juste le chiffre brut.
+
+Niveau 1 — Score de chaque dimension : chaque critère de qualification (Qualité, Fraîcheur, Provenance, Couverture) possède ses propres sous-critères et aboutit à un score /100 indépendant.
+
+Niveau 2 — Data Reliability : les quatre scores sont agrégés par une formule distincte pour produire le score final.
+
+                      DATA À QUALIFIER
+                             │
+          ┌────────────┼────────────┬──────────────┐
+          ▼            ▼            ▼              ▼
+       QUALITÉ      FRAÎCHEUR    PROVENANCE    COUVERTURE
+          │            │            │              │
+        /100          /100         /100           /100
+          │            │            │              │
+          └────────────┴────────────┴──────────────┘
+                              │
+                              ▼
+                    FORMULE D'AGRÉGATION
+                              │
+                              ▼
+                    DATA RELIABILITY /100
+
+Exemple de restitution client (les 4 sous-scores restent toujours visibles à côté du score agrégé) :
+<img width="725" height="233" alt="Capture d&#39;écran 2026-09-06 064500" src="https://github.com/user-attachments/assets/cf2a6652-c219-4d8c-9696-cf2716d47ada" />
+
+Interprétation attendue côté client : « la donnée est très bien documentée et provient d'une source solide, mais elle est moins bien couverte par des sources indépendantes » — une explication qualitative, pas juste "Reliability = 86".
+
+Barème indicatif par exemple pour la Provenance
+
+<img width="726" height="311" alt="Capture d&#39;écran 2026-09-06 064610" src="https://github.com/user-attachments/assets/8c6e3698-92fe-4c92-9237-f5418b492bdd" />
+
+Séparation stricte entre les deux niveaux de formule
+
+Les formules de calcul des 4 dimensions et la formule d'agrégation finale ne doivent jamais être confondues dans le modèle — ce sont deux mécanismes distincts, qui pourront évoluer indépendamment l'un de l'autre.
+
+Répartition du jugement métier vs mesure objective
+
+Principe fondamental, déjà énoncé implicitement en section 1 : le porteur du projet ne décide pas lui-même ce qui constitue "une bonne donnée métier" — le client définit les exigences métier (les informations pertinentes pour son produit), tandis que le système mesure objectivement la fiabilité des informations collectées au regard de ces exigences.
+
+Cette séparation protège le modèle : pas besoin de bâtir une liste universelle de critères valable pour l'huile, le cacao, la farine et les actifs cosmétiques à la fois. Le contenu métier s'adapte au client et au produit ; le mécanisme de qualification, lui, reste structurellement identique.
+
+
+8. Normalisation (Étape 6)
+Distinction avec la Qualification
+
+La Qualification répond à : « cette donnée est-elle suffisamment fiable ? »
+La Normalisation répond à : « puis-je réellement comparer cette donnée avec les autres ? »
+
+Ce sont deux questions différentes, même si certaines opérations techniques peuvent se ressembler (nettoyage, structuration). La Qualification (via le critère Qualité) fait déjà : nettoyage → validation → cohérence → structure → unités → champs nécessaires. La Normalisation va plus loin : elle met les données dans une représentation commune permettant l'analyse comparative — ce n'est donc pas un simple "nettoyage" redondant avec l'Étape 4.
+
+Exemple révélateur du problème
+
+Trois observations de qualité correcte, mais non directement comparables en l'état :
+<img width="724" height="158" alt="Capture d&#39;écran 2026-09-06 065007" src="https://github.com/user-attachments/assets/0b08906b-9603-48e2-a5d4-56549619840b" />
+
+Impossible de mettre directement 7,20 / 6,80 / 7,50 dans un benchmark sans d'abord rendre ces observations comparables entre elles.
+
+Ce que couvre la normalisation
+<img width="724" height="374" alt="Capture d&#39;écran 2026-09-06 065053" src="https://github.com/user-attachments/assets/7601b05d-69fb-429e-a7b9-9ec58618d111" />
+
+9. Market Benchmark (Étape 7)
+Principe
+
+Le benchmark construit une référence de marché à partir des données normalisées. Exemple, après normalisation :
+
+<img width="727" height="274" alt="Capture d&#39;écran 2026-09-06 065308" src="https://github.com/user-attachments/assets/bffa7289-9dd1-4fb9-a51a-fd6e7d334e67" />
+
+On peut alors dire que le fournisseur du client est au-dessus du niveau de prix observé sur le marché. Mais le benchmark ne se limite pas à une moyenne.
+
+Ce que le benchmark cherche à mesurer
+Niveau central du marché — médiane, moyenne selon le cas
+Dispersion — à quel point les prix sont éloignés les uns des autres
+Position du fournisseur — où se situe son prix dans la distribution
+Écart au benchmark — différence entre le fournisseur et la référence
+Évolution du benchmark — comment le marché évolue dans le temps
+Benchmark par segment, éventuellement — par origine, qualité, volume, destination, conditions commerciales, etc.
+
+C'est précisément ici que la Normalisation (Étape 6) devient indispensable : on ne peut pas comparer des prix qui correspondent à des réalités commerciales différentes.
+
+Ce que le benchmark ne dit PAS
+
+Le Market Benchmark ne conclut jamais « le fournisseur est mauvais ». Il dit « voici comment son offre se positionne par rapport au marché observable ». Un fournisseur peut être 15 % plus cher que le benchmark tout en ayant une qualité supérieure ou des conditions commerciales qui justifient l'écart — c'est ensuite Supplier Analysis (Étape 8) qui croise ces éléments pour construire une analyse complète.
+
+MARKET BENCHMARK
+       │
+       └── Où se situe mon fournisseur
+           par rapport au marché ?
+                    ↓
+SUPPLIER ANALYSIS
+       │
+       └── Pourquoi se situe-t-il là ?
+           Quel est son profil ?
+           Quels sont ses avantages / risques ?
+           Quelle est sa compétitivité globale ?
+
+Le benchmark est recalculé à mesure que de nouvelles données arrivent, ce qui permet de suivre l'évolution du marché dans le temps et pas seulement une photo à un instant T. Exemple : benchmark actuel 7,20 €/kg vs benchmark précédent 6,95 €/kg → marché +3,6 %. Si le fournisseur du client passe en parallèle de 7,90 € à 8,10 €, le système peut constater que le fournisseur monte plus vite (ou moins vite) que le marché — une lecture beaucoup plus riche qu'un comparatif ponctuel isolé.
+
+10. Supplier Analysis (Étape 8)
+Séparation fondamentale des trois modules amont
+<img width="726" height="204" alt="Capture d&#39;écran 2026-09-06 065805" src="https://github.com/user-attachments/assets/041890a6-ff78-4cf0-840a-37e4805ff096" />
+
+Les 3 branches
+
+Compétitivité (alimentée par l'interprétation du Market Benchmark, pas recalculée) :
+
+Niveau de prix par rapport au marché
+Évolution de son positionnement
+Compétitivité selon les volumes/conditions
+Écarts avec les alternatives
+
+Performance (→ Supplier Performance Score /100) :
+
+Stabilité des prix
+Régularité des conditions
+Évolution historique
+Comportement par rapport au marché
+
+Risque (→ Risk/Exposure Score /100) :
+
+Dépendance
+Volatilité
+Anomalies
+Concentration
+Exposition à certaines conditions ou situations
+Fiabilité — couche transversale, pas une 4ᵉ branche
+
+Le Data Reliability construit à l'Étape 5 est réutilisé ici pour indiquer à quel point les conclusions sur ce fournisseur sont solides — conformément à ce qu'on avait déjà tranché en section 3 (Architecture).
+
+
+Exemple concret :
+<img width="729" height="118" alt="Capture d&#39;écran 2026-09-06 065936" src="https://github.com/user-attachments/assets/8ca3cae5-416e-4876-ab89-7d51739ccd42" />
+
+En ne regardant que le prix, B semble clairement meilleur. Mais le système sait que l'information concernant B est beaucoup moins robuste. Supplier Analysis peut donc présenter une conclusion nuancée : « B est moins cher selon les données disponibles, mais cette conclusion repose sur des données significativement moins fiables. » — la Fiabilité ne change pas le résultat du calcul de Compétitivité/Performance/Risque, elle qualifie le niveau de confiance qu'on peut accorder à ce résultat.
+
+
+11. Opportunity Engine (Étape 9)
+Ce que le système sait déjà à ce stade
+
+Avant l'Opportunity Engine, le système sait déjà : comment se situe le fournisseur par rapport au marché, s'il est compétitif, comment il performe, quels sont ses risques, et à quel point les données utilisées sont fiables.
+
+La question posée
+
+« Où est-ce que le client peut créer de la valeur ou réduire son risque ? »
+
+Chacune des catégories d'opportunité répond directement à un ou plusieurs des 6 risques posés en section 1 (Problème identifié) :
+
+<img width="723" height="634" alt="Capture d&#39;écran 2026-09-06 070543" src="https://github.com/user-attachments/assets/dacfad4b-3b4a-4624-aee6-129e5ba8459a" />
+
+Anticipation / estimation future
+
+À partir de l'historique et de la dynamique du marché, des modèles statistiques permettent d'estimer des scénarios futurs. Exemple : prix actuel 7,30 €/kg, scénario central à 3 mois 6,80 €/kg, intervalle possible 6,30-7,40 €/kg. L'Opportunity Engine peut alors détecter une opportunité potentielle de timing (évolution anticipée favorable), débouchant sur plusieurs stratégies possibles :
+
+Renégocier maintenant — si le marché est susceptible de repartir à la hausse
+Attendre — si le marché semble continuer à baisser
+Fixer un prix futur / contractualiser — si l'estimation montre une fenêtre intéressante pour sécuriser les conditions
+Augmenter ou réduire les volumes — selon le contexte
+
+Et transversalement : le timing ne répond pas à un risque unique — il vient qualifier le "quand" pour n'importe lequel des risques ci-dessus (ex. le risque de dépendance peut justifier une diversification, mais le timing dit si c'est le bon moment de le faire ou s'il vaut mieux attendre).
+
+Opportunité de maintien est le seul cas qui ne répond pas à un risque précis — elle correspond à l'absence de risque significatif détecté, une conclusion en soi utile pour le client (confirmation plutôt qu'alerte).
+
+Recommandation (Étape 10)
+Principe : jamais une instruction binaire
+
+Le système ne donne jamais « renégociez » ou « ne renégociez pas », mais une décision accompagnée de son niveau d'incertitude et de scénarios quantifiés.
+
+Exemple : plutôt que "le prix va probablement baisser", le système produit : prix actuel 7,40 €/kg, prix médian estimé à 3 mois 6,95 €/kg, probabilité que le prix soit inférieur à 7,00 €/kg dans 3 mois : 68 %, probabilité qu'il dépasse 7,80 €/kg : 12 %. Le client peut alors raisonner en termes de risque / rendement / timing, plutôt que de suivre une instruction brute.
+
+Les scénarios quantifiés s'appuient sur la Simulation de Monte Carlo et l'inférence bayésienne, dont le fonctionnement est détaillé dans la section Continuous Intelligence (section 5) — la Recommandation est le point de sortie qui exploite ces scénarios, elle ne recalcule rien de nouveau.
+
+Positionnement assumé
+
+Le produit ne promet pas « nous savons ce qui va arriver », mais « nous quantifions les scénarios possibles, leur probabilité, et leur évolution à mesure que de nouvelles données apparaissent ».
+
+Récapitulatif du pipeline complet (clôture de l'axe technique)
+<img width="726" height="283" alt="Capture d&#39;écran 2026-09-06 071145" src="https://github.com/user-attachments/assets/ab5d747b-e643-44d8-b40e-ea1c111da40c" />
+
+13. Continuous Intelligence
+
+Section de référence unique — toute autre mention du document y renvoie (notamment depuis Opportunity Engine et Recommandation).
+
+Principe
+
+Le client active une surveillance périodique (ex. mensuelle/trimestrielle). Le prestataire ou les sources externes alimentent la base, et le système recalcule : benchmark, Supplier Performance Score, évolution des prix, évolution de la compétitivité, opportunités, alternatives.
+
+Nouvelle donnée
+      ↓
+Mise à jour du modèle
+      ↓
+Nouvelles probabilités
+      ↓
+Nouveaux scénarios
+      ↓
+Opportunity Engine mis à jour
+      ↓
+Recommandation actualisée
+
+Deux outils statistiques mobilisés
+Simulation de Monte Carlo : générer de nombreuses trajectoires/scénarios possibles à partir des distributions et incertitudes observées — scénario défavorable / central / favorable / distribution complète — plutôt que de prétendre connaître un prix futur unique.
+Inférence bayésienne : chaque nouvelle information (prix, transaction, changement de tendance...) met à jour les croyances/probabilités du modèle. À mesure qu'arrivent de nouveaux prix fournisseur, nouvelles transactions, nouvelles données de marché, changements de tendance, nouvelles informations qualitatives — le modèle met à jour ses estimations en continu.
+Positionnement assumé
+
+Le système ne promet pas « nous savons ce qui va arriver », mais « nous quantifions les scénarios possibles, leur probabilité, et leur évolution à mesure que de nouvelles données apparaissent ».
+
+Rattachement à l'axe commercial
+
+Accessible dès le Palier I (voir section 2, Fonctionnement global) — pas une 5ᵉ étape technique ni un 4ᵉ palier séparé, mais une option transversale activable depuis n'importe quel niveau de données déjà choisi par le client.
+
+
+14. Méthodologie envisagée
+Validation des étapes du pipeline
+
+Les Étapes sont définies suffisamment clairement pour qu'une fois une étape terminée, il ne soit pas nécessaire d'y revenir. Cela dit, chaque résultat produit à une étape est scruté en continu pour vérifier sa cohérence avec les recherches et résultats des autres étapes — la validation n'est donc pas un aller simple, elle inclut un contrôle croisé permanent entre étapes plutôt qu'une validation isolée étape par étape.
+
+Choix du marché/produit pilote
+
+Aucun marché ou produit précis n'est encore fixé — ce choix sera dicté par le premier grossiste ou entreprise qui accordera sa confiance au porteur du projet, pas par une préférence personnelle. Tous les exemples utilisés dans la documentation (beurre de cacao/Ghana, huile cosmétique, farine) sont purement illustratifs. Une priorité générale est cependant assumée : cibler en priorité les grossistes de matières premières dans l'import-export.
+
+Construction des formules de scoring
+
+Pas de démarche encore arrêtée pour le calcul détaillé des formules (pondérations de Qualité/Fraîcheur/Provenance/Couverture, formule d'agrégation du Data Reliability, etc.) — ce travail sera approfondi plus tard. Engagement de méthode déjà pris : tout sera construit avec des logiciels précis et des technologies limitant au maximum le risque d'erreur (détail à venir dans la section Stack technique).
+
+Horizon de la V1 "vendable"
+
+Aucune échéance connue ni estimable à ce stade du projet — question jugée prématurée, comparable à demander un chiffre d'affaires prévisionnel avant même d'avoir un client. Ce point reste ouvert et ne sera clarifié qu'au fil de l'expérience terrain.
+
+Travail en solo : contrainte financière, pas un choix de méthode définitif
+
+Faire tout seul (acquisition, tri, qualification, benchmark, analyse, recommandation) est une contrainte financière actuelle, pas une préférence de fonctionnement à long terme. L'ambition est de faire grossir le projet suffisamment pour recruter progressivement :
+
+Une équipe marketing/commerciale en priorité — pour la recherche de clients et la présentation/closing du produit, identifiée comme la tâche la moins appréciée par le porteur du projet lui-même.
+Puis, progressivement, une délégation de la partie technique — recruter des spécialistes plus compétents que le porteur du projet sur chaque étape du pipeline.
+
+Vision de long terme assumée : construire un système capable, à terme, de fonctionner sans dépendre exclusivement du porteur du projet — l'objectif classique de tout entrepreneur étant que l'entreprise puisse tourner de façon autonome, avec des experts spécialisés à chaque étape.
+
+
+
+15. Stack technique
+Outils par Étape
+<img width="728" height="663" alt="Capture d&#39;écran 2026-09-06 073842" src="https://github.com/user-attachments/assets/2b74d353-a07c-46be-a7bc-228dedaed574" />
+<img width="729" height="237" alt="Capture d&#39;écran 2026-09-06 073910" src="https://github.com/user-attachments/assets/45a08973-41b4-444a-991f-cbc9bf0ca3fe" />
+
+Stack générale
+
+<img width="724" height="322" alt="Capture d&#39;écran 2026-09-06 073942" src="https://github.com/user-attachments/assets/36c56138-ae1d-4587-a535-8748d0b7f24a" />
+
+16. Ce qui reste à valider sur le terrain (synthèse complète)
+Comment chaque grossiste gère actuellement ce problème (aucune méthode connue à l'avance)
+Pourquoi cette visibilité manque aujourd'hui (hypothèses non confirmées)
+Existence réelle d'un pôle data / spécialiste Procurement chez les grossistes ciblés (parfois le grossiste lui-même)
+Nature exacte de la donnée additionnelle apportée à chaque Palier (au-delà de la logique générale D→E→F)
+Faisabilité réelle du délai de livraison de moins d'un mois
+Choix des 3-4 métriques les plus pertinentes pour la démo (Étape 0), variable par produit
+Format définitif du rapport client (docx seul ou avec volet Excel)
+Sources spécialisées (Catégorie E) et contacts de sous-traitance (Catégorie F), à identifier produit par produit
+Recalcul du Data Reliability à chaque Palier (complet, choix par défaut) — à confirmer empiriquement face à un recalcul incrémental
+Marché/produit du premier pilote (dépend entièrement du premier client)
+Méthode précise de calcul des formules de scoring (pondérations, agrégation)
+Échéance réaliste d'une V1 "vendable"
                     
                         GROSSISTE
                             │
@@ -523,910 +843,6 @@ alternatives.
         
 
 
-PARTIE 1 ────────┐
-                  │
-PARTIE 2 ────────┼──→ CONTINUOUS INTELLIGENCE
-                  │
-PARTIE 3 ────────┘
-
-
-
-3. TRI / SÉLECTION DATA
-
-« Parmi toutes les données qu'on a récupérées, lesquelles décide-t-on de conserver pour l'analyse de ce produit ? »
-
-
-PARTIE 1
-≈ 10 données / métriques sélectionnées
-→ adaptées au produit et au besoin du client
-
-PARTIE 2
-≈ 15 données / métriques sélectionnées
-→ + données permettant d'approfondir l'analyse
-
-PARTIE 3
-≈ 20 données / métriques sélectionnées
-→ + données spécialisées / difficiles à obtenir
-
-PARTIE 4
-> 30 données / métriques potentielles
-→ maximum exploitable selon le produit,
-   les données disponibles et l'intérêt analytique
-
-
-Le nombre un minimum cible, pas une règle rigide. 
-
-Exemple très simple
-
-Pour une huile cosmétique, les 10 données de Partie 1 pourraient être principalement autour de :
-
-Produit
-Prix
-Devise
-Unité
-Date
-Volume
-Fournisseur
-Origine
-Qualité / grade
-Conditions de livraison
-
-
-Alors que pour de la farine, la sélection pourrait être différente :
-
-Produit
-Type de farine
-Prix
-Unité
-Date
-Volume
-Fournisseur
-Origine du blé
-Taux de protéines
-Qualité / classification
-
-
-Donc on ne promet pas au client 10 champs universels.
-
-On lui promet plutôt :
-
-Partie 1 : un socle minimum d'environ 10 données pertinentes, sélectionnées spécifiquement pour le produit et l'objectif d'analyse.
-
-Puis :
-
-Partie 2 : environ 15 données pertinentes, avec enrichissement.
-
-Puis :
-
-Partie 3 : environ 20 données pertinentes, avec les informations supplémentaires que permettent les sources difficiles d'accès.
-
-Et enfin :
-
-Partie 4 : exploitation continue d'un ensemble de données pouvant dépasser 30 métriques lorsque le produit et les sources le permettent.
-
-Et je garderais absolument l idée de validation empirique : les chiffres 10 / 15 / 20 / +30 sont pour l'instant nos objectifs de conception, pas encore des vérités du produit. On devra tester sur plusieurs familles de produits pour voir si 30+ variables apportent réellement de la valeur ou si certaines deviennent redondantes.
-
-
-
-
-
-4. QUALIFICATION DES DONNÉES 
-
-La donnée est calculer par rapport à 4 critères : la qualité, la fraicheur, la provenance et la couverture. 
-
-Pourquoi ces 4 critères ?
-
-| Critère        | Question                                                            |
-| -------------- | ------------------------------------------------------------------- |
-| **Qualité**    | Est-ce que la donnée est correcte et exploitable ?                  |
-| **Fraîcheur**  | Est-ce que la donnée représente encore le marché actuel ?           |
-| **Provenance** | D'où vient-elle et comment a-t-elle été obtenue ?                   |
-| **Couverture** | Est-ce qu'on a suffisamment de données pour représenter le marché ? |
-
-Qualité — « Est-ce que la donnée est exploitable ? »
-
-La qualité concerne le contenu même de l'observation.
-
-Par exemple :
-
-Prix : 7,20 €/kg
-Produit : Cocoa Butter
-Date : 2026-08-15
-Quantité : 1 000 kg
-Incoterm : FOB
-Origine : Ghana
-Qualité : Organic
-
-C'est beaucoup plus exploitable que :
-
-Cocoa Butter
-7,20 €/kg
-
-Pourquoi ?
-
-Parce que le deuxième prix est impossible à comparer correctement.
-
-Le premier peut être normalisé.
-
-La qualité pourrait donc vérifier :
-
-produit précisément identifié ;
-unité ;
-devise ;
-quantité ;
-date ;
-origine ;
-grade/qualité ;
-Incoterm ;
-lieu de livraison ;
-MOQ ;
-conditions commerciales ;
-etc.
-
-C'est là que le data cleaning + validation + normalisation intervient.  (à développer) 
-
-Donc on ne récompense pas simplement « beaucoup d'informations ». On récompense la présence d'informations pertinentes et cohérentes permettant de contextualiser le prix.
-
-
-
-Fraîcheur — « Est-ce que cette observation représente encore le marché ? »
-
-C'est particulièrement important pour les matières premières.
-
-Une observation de :
-
-7,20 €/kg en janvier 2025
-
-n'a pas la même valeur qu'une observation de :
-
-7,20 €/kg en septembre 2026.
-
-Mais attention : fraîcheur ≠ simplement âge de la donnée.
-
-Une donnée vieille de six mois sur un marché très stable peut rester utile.
-
-Une donnée vieille de six jours sur un marché extrêmement volatil peut déjà être dégradée.
-
-Donc idéalement, le système pourra associer la fraîcheur à la dynamique du marché.
-
-Conceptuellement :
-
-Freshness Score
-        ↓
-âge de l'observation
-        +
-volatilité du marché
-        +
-fréquence de mise à jour
-
-Plus tard, on pourrais même avoir une fonction de décroissance :
-
-$$ Freshness(t)=e^{-\λt} $$
-
-où λ dépendrait du type de marché.
-
-Mais pas maintenant. Pour la première analyse, une classification simple suffit.
-
-Exemple : 
-
-< 30 jours      → très récent
-30–90 jours     → récent
-90–180 jours    → intermédiaire
-> 180 jours     → ancien
-
-Les seuils seront évidemment adaptés au produit. 
-
-
-Provenance — « D'où vient la donnée et comment a-t-elle été obtenue ? »
-
-Ici, on ne cherche pas encore à savoir si la donnée est bonne. On cherche à savoir quelle est son origine et quelle est la chaîne d'acquisition.
-
-Par exemple, pour un prix de cacao à 7,20 €/kg :
-
-7,20 €/kg
-│
-├── Source : fournisseur
-├── Mode : devis transmis directement
-├── Date : 15/08/2026
-└── Intermédiaire : aucun
-
-ou :
-
-7,20 €/kg
-│
-├── Source : catalogue public
-├── Mode : recherche web
-├── Date de consultation : 04/09/2026
-└── Prix affiché publiquement
-
-ou encore :
-
-7,20 €/kg
-│
-├── Source : base de données professionnelle
-├── Mode : donnée acquise via abonnement
-├── Date : 01/09/2026
-└── Source spécialisée
-
-Donc la provenance peut notamment renseigner :
-
-source
-type de source
-mode d'acquisition
-date d'obtention
-chaîne de transmission éventuelle
-source directe ou indirecte
-
-On pourrait avoir par exemple :
-
-CLIENT / TRANSACTION
-FOURNISSEUR / DEVIS
-RECHERCHE PUBLIQUE
-CATALOGUE
-MARKETPLACE
-BASE DE DONNÉES
-INDEX / MARCHÉ
-EXPERT / AGENCE
-
-Et c'est important pour notre système parce qu'une même information peut nous parvenir par plusieurs canaux.
-
-La provenance décrit donc l'origine et le chemin de la donnée, pas sa qualité.
-
-Une donnée provenant directement d'un fournisseur n'est pas automatiquement « vraie » simplement parce que sa provenance est excellente. Elle aura simplement une provenance clairement identifiée. La qualité sera évaluée séparément.
-
-
-
-La couverture de l'information
-
-Je la définirais ainsi :
-
-La couverture mesure dans quelle mesure une information est suffisamment documentée par des sources pertinentes et indépendantes pour pouvoir être considérée comme représentative et fiable.
-
-L'idée n'est donc pas simplement de compter les sources.
-
-Prenons une observation :
-
-Beurre de cacao — 7,20 €/kg — fournisseur X — Ghana — FOB — 1 000 kg — 15/08/2026
-
-On peut avoir plusieurs éléments qui viennent renforcer cette information :
-
-le devis directement fourni par le fournisseur ;
-une transaction historique du client avec ce fournisseur ;
-un catalogue ou tarif public du fournisseur ;
-une base de données professionnelle ;
-une autre source de marché donnant un niveau de prix comparable.
-
-L'information est alors davantage couverte, parce qu'on ne dépend pas d'une seule observation isolée.
-
-Mais il y a un point très important
-
-5 sources ≠ automatiquement meilleure couverture que 2 sources.
-
-Si les cinq sources reprennent toutes la même information provenant à l'origine du même fournisseur, on n'as en réalité pas cinq confirmations indépendantes.
-
-Par exemple :
-
-Site du fournisseur → marketplace → annuaire → article → autre catalogue
-
-Si tout le monde a copié le même tarif fournisseur, cela ne constitue quasiment qu'une seule source primaire.
-
-À l'inverse :
-
-Devis fournisseur + facture historique client + base professionnelle
-
-Là, on as des sources d'origines différentes qui peuvent réellement recouper l'information.
-
-Donc, à terme, la couverture devra probablement tenir compte de trois choses :
-
-Nombre de sources pertinentes + indépendance des sources + cohérence entre les sources.
-
-Exemple concret
-
-Imaginons que ton système ait :
-
-Source	Information sur le prix
-Devis fournisseur	7,20 €/kg
-Historique client	7,35 €/kg
-Base professionnelle	7,10 €/kg
-Catalogue fournisseur	7,20 €/kg
-
-on n'as pas simplement « 4 sources ».
-
-Je peux constater que :
-
-plusieurs sources indiquent un niveau proche ;
-les sources ne sont pas toutes de même nature ;
-certaines sont directement liées au fournisseur ;
-certaines sont indépendantes.
-
-L'information 7,20 €/kg devient donc beaucoup plus solide qu'un simple :
-
-« Fournisseur X : 7,20 €/kg »
-
-Et c'est là que la couverture devient intéressante pour le score
-
-Je pourrais avoir deux fournisseurs avec une donnée de qualité similaire :
-
-Fournisseur A
-
-Prix = 7,20 €/kg
-1 seule source : devis fournisseur
-
-Fournisseur B
-
-Prix = 7,20 €/kg
-devis fournisseur + historique client + source professionnelle
-
-La donnée de B est potentiellement mieux couverte.
-
-Mais attention : cela ne signifie pas encore que B est meilleur que A. La couverture sert à déterminer le niveau de confiance que je peux accorder à l'information, pas à juger directement le fournisseur.
-
-
-Partie 5 — Data Reliability
-
-L'idée est que les 4 dimensions de qualification restent visibles séparément, puis soient agrégées dans un score final.
-
-
-                 DATA À QUALIFIER
-                       │
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-       QUALITÉ      FRAÎCHEUR    PROVENANCE    COUVERTURE
-          │            │            │              │
-        /100          /100         /100           /100
-          │            │            │              │
-          └────────────┴────────────┴──────────────┘
-                              │
-                              ▼
-                    FORMULE D'AGRÉGATION
-                              │
-                              ▼
-                   DATA RELIABILITY /100
-
-à terme, les 4 critères ont vocation à être quantifiés.
-
-Donc, pour une donnée donnée, le client pourrait voir par exemple :
-
-| Dimension            |      Score |
-| -------------------- | ---------: |
-| Qualité              |     92/100 |
-| Fraîcheur            |     81/100 |
-| Provenance           |     95/100 |
-| Couverture           |     74/100 |
-| **Data Reliability** | **86/100** |
-
-
-ex pour la provenance : 
-
-SOURCE FOURNISSEUR
-        ↓
-   valeur élevée
-        │
-        ├────────┐
-        │        │
-CATALOGUE    MARKETPLACE
-PUBLIC          etc.
-        ↓        ↓
- valeurs différentes
-        │
-        └───────┬────────┘
-                ▼
-       PROVENANCE SCORE
-             /100
-
-| Provenance                                    | Valeur indicative |
-| --------------------------------------------- | ----------------: |
-| Transaction réelle / donnée client vérifiable |       Très élevée |
-| Devis direct fournisseur                      |            Élevée |
-| Donnée professionnelle spécialisée            |            Élevée |
-| Donnée de marché structurée                   |            Élevée |
-| Catalogue fournisseur public                  |           Moyenne |
-| Marketplace                                   |          Variable |
-| Estimation / source indirecte                 | Faible à variable |
-
-
-Le point important est que le score final n'efface pas les quatre composantes.
-
-Si le client voit 86/100, il doit pouvoir comprendre pourquoi :
-
-« La donnée est très bien documentée et provient d'une source solide, mais elle est moins bien couverte par des sources indépendantes. »
-
-C'est beaucoup plus intéressant commercialement qu'un simple « Reliability = 86 ».
-
-Et surtout : les deux niveaux de quantification sont différents
-
-On auras :
-
-Niveau 1 — Score de chaque dimension
-
-Chaque critère possède ses propres sous-critères et aboutit à un score /100.
-
-Par exemple :
-
-Qualité → plusieurs critères → 92/100
-
-Fraîcheur → plusieurs critères → 81/100
-
-Provenance → plusieurs critères → 95/100
-
-Couverture → plusieurs critères → 74/100
-
-Puis :
-
-Niveau 2 — Data Reliability
-
-Les quatre scores sont agrégés par une formule distincte pour obtenir :
-
-Data Reliability = 86/100
-
-Et je pense qu'il faut conserver cette distinction dans le modèle : les formules de calcul des quatre dimensions et la formule d'agrégation finale ne doivent pas être confondues.
-
-Je ne cherches pas à décider moi-même de ce qui constitue une « bonne donnée métier ». Le client définit le besoin métier et les informations pertinentes pour son produit, tandis que je construis le système qui permet de mesurer objectivement la fiabilité des informations collectées.
-
-Le client définit les exigences métier ; le système Data mesure et quantifie la fiabilité des informations au regard de ces exigences.
-
-Et ça protège aussi notre modèle : on n'as pas besoin de créer une liste universelle de 50 critères valable pour l'huile, le cacao, la farine, les matières premières cosmétiques, etc. Le contenu métier s'adapte au client et au produit ; mon mécanisme de qualification, lui, reste structuré.
-
-
-6. Normalisation Data
-
-
-La qualification répond à :
-
-« Est-ce que cette donnée est suffisamment fiable ? »
-
-La normalisation répond à :
-
-« Est-ce que je peux réellement comparer cette donnée avec les autres ? »
-
-Ce sont deux problèmes différents.
-
-Exemple simple
-
-Je récupère :
-
-Fournisseur A
-
-7,20 €/kg — Cocoa Butter — FOB — Ghana — 1 000 kg
-
-Fournisseur B
-
-6 800 $/tonne — Cocoa Butter — CIF Rotterdam — 5 tonnes
-
-Fournisseur C
-
-7,50 €/kg — Cocoa Butter — EXW — 500 kg
-
-On as potentiellement trois informations de qualité correcte.
-
-Mais je ne peux pas encore mettre directement 7,20 / 6,80 / 7,50 dans un benchmark.
-
-Il faut d'abord rendre les observations comparables.
-
-Ce que fait la normalisation
-
-Elle va essentiellement transformer des données hétérogènes en une structure commune.
-
-Unités
-
-Par exemple :
-
-€/kg
-$/tonne
-€/tonne
-£/lb
-
-→ conversion vers une unité de référence.
-
-Devise
-EUR
-USD
-GBP
-etc.
-
-→ conversion selon une règle temporelle cohérente.
-
-Produit
-
-Un fournisseur peut écrire :
-
-Cocoa Butter
-
-Un autre :
-
-Cocoa Butter Deodorized
-
-Un autre :
-
-Cacao Butter Organic
-
-Il faut être capable de distinguer :
-
-produit, qualité/grade, certification, etc., plutôt que de considérer automatiquement ces trois lignes comme identiques.
-
-Quantité
-
-Une offre à :
-
-500 kg
-
-n'est potentiellement pas comparable à :
-
-20 tonnes
-
-Le volume peut influencer le prix.
-
-Conditions commerciales
-
-Même chose pour :
-
-Incoterm
-lieu de livraison
-délai
-MOQ
-conditions de paiement
-etc.
-
-Un prix FOB Ghana et un prix CIF Rotterdam ne représentent pas exactement la même chose.
-
-Donc la normalisation ne veut pas dire « nettoyer les données »
-
-On as déjà une partie Qualité dans Data Reliability où je fais notamment :
-
-nettoyage → validation → cohérence → structure → unités → champs nécessaires
-
-La normalisation va plus loin :
-
-mettre les données dans une représentation commune permettant l'analyse comparative.
-
-Il peut donc y avoir des opérations qui se ressemblent techniquement, mais leur objectif est différent.
-
-Qualification :
-
-Est-ce que cette donnée est exploitable et fiable ?
-
-Normalisation :
-
-Comment dois-je représenter cette donnée pour pouvoir la comparer aux autres ?
-
-
-7. MARKET BENCHMARK
-
-Le benchmark va donc construire une référence de marché à partir des données disponibles.
-
-Par exemple, après normalisation :
-
-| Fournisseur | Prix comparable |
-| ----------- | --------------: |
-| A           |       6,80 €/kg |
-| B           |       7,10 €/kg |
-| C           |       7,20 €/kg |
-| D           |       7,40 €/kg |
-| E           |       7,80 €/kg |
-| **Client**  |   **8,10 €/kg** |
-
-
-On peut alors dire que le fournisseur du client est au-dessus du niveau de prix observé sur le marché.
-
-Mais le benchmark ne doit pas se limiter à une moyenne.
-
-Ce que le benchmark doit chercher à mesurer
-
-Pour chaque produit et chaque segment de marché, on peut construire plusieurs références :
-
-niveau central du marché → médiane, moyenne selon le cas ;
-dispersion → à quel point les prix sont éloignés les uns des autres ;
-position du fournisseur → où se trouve son prix dans la distribution ;
-écart au benchmark → différence entre le fournisseur et la référence ;
-évolution du benchmark → comment le marché évolue dans le temps ;
-éventuellement benchmark par segment → origine, qualité, volume, destination, conditions commerciales, etc.
-
-Et c'est justement là que la normalisation devient fondamentale : on ne compare pas des prix qui correspondent à des réalités commerciales différentes.
-
-Mais il y a une distinction importante
-
-Le Market Benchmark ne dit pas encore :
-
-« Le fournisseur est mauvais. »
-
-Il dit :
-
-« Voici comment son offre se positionne par rapport au marché observable. »
-
-C'est une différence importante.
-
-Un fournisseur peut être 15 % plus cher que le benchmark, mais avoir une qualité supérieure ou des conditions commerciales qui justifient cet écart.
-
-C'est ensuite la Supplier Analysis qui va croiser ces différents éléments pour établir une analyse plus complète du fournisseur.
-
-MARKET BENCHMARK
-       │
-       └── Où se situe mon fournisseur
-           par rapport au marché ?
-                    ↓
-SUPPLIER ANALYSIS
-       │
-       └── Pourquoi se situe-t-il là ?
-           Quel est son profil ?
-           Quels sont ses avantages / risques ?
-           Quelle est sa compétitivité globale ?
-
-
-Et surtout, le benchmark sera dynamique
-
-Comme mon système peut fonctionner avec de la Continuous Intelligence, le benchmark pourra être recalculé lorsque de nouvelles données arrivent.
-
-Donc on peut avoir :
-
-Benchmark actuel : 7,20 €/kg
-Benchmark précédent : 6,95 €/kg
-→ évolution du marché : +3,6 %
-
-Et parallèlement :
-
-Fournisseur client : 8,10 €/kg
-
-Le système peut alors constater que le marché monte, mais que le fournisseur monte éventuellement plus vite ou moins vite que le marché.
-
-C'est beaucoup plus intéressant qu'un simple comparatif ponctuel.
-
-
-
-8. SUPPLIER ANALYSIS
-
-
-Compétitivité
-
-niveau de prix par rapport au marché ;
-évolution de son positionnement ;
-compétitivité selon les volumes/conditions ;
-écarts avec les alternatives.
-
-Performance
-
-stabilité des prix ;
-régularité des conditions ;
-évolution historique ;
-comportement par rapport au marché.
-
-Risque fournisseur
-
-dépendance ;
-volatilité ;
-anomalies ;
-concentration ;
-exposition à certaines conditions ou situations.
-
-Fiabilité de l'information
-
-on réutilise le Data Reliability /100 construit précédemment pour savoir à quel point les conclusions sur ce fournisseur sont solides.
-
-On Imagine deux fournisseurs :
-
-|                  | Fournisseur A | Fournisseur B |
-| ---------------- | ------------: | ------------: |
-| Prix observé     |        7,20 € |        6,90 € |
-| Data Reliability |        95/100 |        52/100 |
-
-Si on regardes uniquement le prix :
-
-B semble clairement meilleur.
-
-Mais mon système sait :
-
-« Attention, l'information concernant B est beaucoup moins robuste. »
-
-Donc la Supplier Analysis peut présenter :
-
-B est moins cher selon les données disponibles, mais cette conclusion repose sur des données significativement moins fiables.
-
-
-
-Avec une séparation fondamentale :
-
-Data Reliability
-→ « Peut-on faire confiance à cette information ? »
-
-Market Benchmark
-→ « Où se situe ce fournisseur par rapport au marché ? »
-
-Supplier Analysis
-→ « Quel est le profil, la performance, la compétitivité et le risque de ce fournisseur, compte tenu de sa position sur le marché ? »
-
-
-9. Opportunity Engine
-
-On sais maintenant :
-
-comment se situe le fournisseur par rapport au marché ;
-s’il est compétitif ;
-comment il performe ;
-quels sont ses risques ;
-à quel point les données utilisées sont fiables.
-
-L’Opportunity Engine pose une nouvelle question :
-
-« Où est-ce que le client peut créer de la valeur ou réduire son risque ? »
-
-
-
-Opportunité de prix
-
-Le fournisseur est sensiblement au-dessus du benchmark → potentiel de négociation.
-
-Opportunité de fournisseur
-
-Une alternative présente un meilleur profil → possibilité de changer ou d'ajouter un fournisseur.
-
-Opportunité de diversification
-
-Le fournisseur actuel est bon mais la dépendance est trop importante → rechercher une alternative pour réduire l'exposition.
-
-Opportunité de maintien
-
-Le fournisseur est compétitif et performant → aucune action majeure nécessaire.
-
-Opportunité liée au timing (relié à toutes les autres) 
-
-Le marché évolue dans une direction favorable → moment potentiellement pertinent pour renégocier, acheter davantage ou attendre.
-
-Le système observe l'évolution d'un prix ou d'une variable dans le temps.
-
-Par exemple :
-
-Prix fournisseur : 8,20 → 7,90 → 7,60 → 7,30 €/kg
-
-On ne regarde donc plus seulement où est le prix aujourd'hui, mais dans quelle direction il évolue et à quelle vitesse.
-
-Cela peut faire apparaître une opportunité :
-
-Tendance baissière persistante → potentiel intérêt à attendre avant de renégocier / acheter.
-
-Ou à l'inverse :
-
-Tendance haussière persistante → intérêt potentiel à négocier rapidement ou sécuriser un prix.
-
-
-Anticipation / estimation future
-
-Et là, l' exemple est encore plus intéressant.
-
-Le système constate :
-
-« Le prix de cette matière chez ce fournisseur diminue continuellement depuis plusieurs mois. »
-
-Je peux alors utiliser l'historique, la dynamique du marché et ensuite des modèles statistiques pour estimer des scénarios futurs.
-
-Par exemple :
-
-Prix actuel : 7,30 €/kg
-Scénario central à 3 mois : 6,80 €/kg
-Intervalle possible : 6,30–7,40 €/kg
-
-L'Opportunity Engine peut alors détecter :
-
-Opportunité potentielle de timing : évolution anticipée favorable.
-
-Et cela peut déboucher sur plusieurs stratégies :
-
-Renégocier maintenant
-si le marché est susceptible de repartir à la hausse.
-
-Attendre
-si le marché semble continuer à baisser.
-
-Fixer un prix futur / contractualiser
-si l'estimation montre une fenêtre intéressante pour sécuriser les conditions.
-
-Augmenter ou réduire les volumes
-selon le contexte.
-
-
-
-Et c’est là que la Continuous Intelligence prend vraiment sa place dans mon architecture.
-
-L'opportunité liée au timing n'est pas simplement :
-
-« une cinquième catégorie d'opportunité ».
-
-C'est plutôt une dimension temporelle qui peut modifier toutes les autres opportunités.
-
-
-
-10. RECOMMANDATION finale
-
-Je ne veux pas donner au client :
-
-« Renégociez. »
-ou
-« Ne renégociez pas. »
-
-Mias lui donner une décision accompagnée de son niveau d’incertitude et de scénarios quantifiés.
-
-
-Exemple
-
-Le système détecte une tendance baissière sur une matière première.
-
-Au lieu de :
-
-« Le prix va probablement baisser. »
-
-Tu pourrais arriver à quelque chose comme :
-
-Prix actuel : 7,40 €/kg
-Prix médian estimé à 3 mois : 6,95 €/kg
-Probabilité que le prix soit inférieur à 7,00 €/kg dans 3 mois : 68 %
-Probabilité qu'il dépasse 7,80 €/kg : 12 %
-
-Là, le client peut réellement raisonner en termes de risque / rendement / timing 
-
-
-Simmulation de monte carlo :
-
-générer beaucoup de trajectoires/scénarios possibles à partir des distributions et incertitudes observées.
-
-Donc :
-
-Prix futur
-   │
-   ├── scénario défavorable
-   ├── scénario central
-   ├── scénario favorable
-   └── distribution complète
-
-
-Et non pas prétendre connaître un prix futur unique.
-
-
-Inférence bayésienne
-
-Elle apporte une autre logique :
-
-chaque nouvelle information met à jour mon estimation.
-
-Puis arrivent :
-
-nouveaux prix fournisseur ;
-nouvelles transactions ;
-nouvelles données de marché ;
-changement de tendance ;
-nouvelles informations qualitatives.
-
-Le modèle met à jour ses croyances/probabilités.
-
-Donc avec la Continuous Intelligence :
-
-
-Nouvelle donnée
-      ↓
-Mise à jour du modèle
-      ↓
-Nouvelles probabilités
-      ↓
-Nouveaux scénarios
-      ↓
-Opportunity Engine mis à jour
-      ↓
-Recommandation actualisée
-
-Je ne promet pas :
-
-« Nous savons ce qui va arriver. »
-
-Mais quelque chose de plus sérieux :
-
-« Nous quantifions les scénarios possibles, leur probabilité et leur évolution à mesure que de nouvelles données apparaissent. »
-
-Et ça colle parfaitement à mon architecture :
-
-Data Reliability → quelle confiance dans les données ?
-Market Benchmark → où sommes-nous par rapport au marché ?
-Supplier Analysis → quel est le profil du fournisseur ?
-Opportunity Engine → où sont les opportunités ?
-Recommendation → quelles sont les probabilités et scénarios associés ? Et quelle action paraît la plus rationnelle compte tenu de ces résultats ?
-
-
 Quelle profondeur historique doit-on fournir au client ?
 
 
@@ -1475,47 +891,4 @@ observations aberrantes ;
 
 puis déterminer ce qui est transposable à notre cas.
 
-
-| Étape                           | Ce qu'on fait                                                   | Outil principal                   | V1 ? |
-| ------------------------------- | --------------------------------------------------------------- | --------------------------------- | ---- |
-| **1. Acquisition**              | Collecter données client, fournisseurs, marché, web, fichiers   | **Python + Excel/CSV + APIs/Web** | ✅    |
-| **2. Sélection**                | Garder les données pertinentes selon produit/besoin             | **Python + Pandas**               | ✅    |
-| **3. Qualification**            | Nettoyage, validation, contrôle de cohérence                    | **Python + Pandas**               | ✅    |
-| **4. Data Reliability**         | Quality / Freshness / Provenance / Coverage → scores            | **Python**                        | ✅    |
-| **5. Normalisation**            | Unités, devises, produits, volumes, Incoterms, conditions       | **Python + PostgreSQL**           | ✅    |
-| **6. Market Benchmark**         | Construire la référence de marché et positionner le fournisseur | **Python + PostgreSQL**           | ✅    |
-| **7. Supplier Analysis**        | Compétitivité, Performance, Risque                              | **Python + PostgreSQL**           | ✅    |
-| **8. Opportunity Engine**       | Détection et priorisation des opportunités                      | **Python**                        | ✅    |
-| **9. Recommendation**           | Transformer les opportunités en recommandations achats          | **Python**                        | ✅    |
-| **10. Continuous Intelligence** | Mise à jour automatique, alertes, recalculs                     | **n8n + Python**                  | ⏳    |
-| **Interface / Dashboard**       | Présenter les résultats au client                               | **Power BI** ou **Plotly/Dash**   | ⏳    |
-
-
-Data
-
-Python
-
-Pandas
-NumPy
-SciPy
-éventuellement scikit-learn plus tard
-Database
-
-PostgreSQL
-
-Visualisation / recherche analytique
-
-Plotly
-
-Restitution client
-
-Power BI au début
-
-Automatisation
-
-n8n plus tard
-
-Développement
-
-VS Code + Git + GitHub
 
