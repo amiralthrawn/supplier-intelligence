@@ -1,1 +1,63 @@
+a) Pondérations du client (importance des critères)
+On crée un dictionnaire :
+client_weights = {
+    "quality": 0.40,
+    "price": 0.20,
+    "origin": 0.15,
+    "delivery_time": 0.10,
+    "currency": 0.05,
+    "experience": 0.10  # par exemple
+}
 
+On vérifiera que la somme fait 1.0 (ou 100 %).
+
+b) Données brutes des fournisseurs
+Exemple pour du cacao :
+suppliers = [
+    {
+        "name": "A",
+        "price": 8.20,              # en dollars
+        "delivery_time": 20,        # en jours
+        "quality": 8.0,             # sur 10
+        "origin": "Cote d'Ivoire",  # pays
+        "currency": "USD",
+        "experience": 10,           # années de relation
+        "data_reliability": 0.8     # score 0-1
+    },
+    {
+        "name": "B",
+        "price": 7.90,
+        "delivery_time": 25,
+        "quality": 7.5,
+        "origin": "Ghana",
+        "currency": "EUR",
+        "experience": 0,
+        "data_reliability": 0.7
+    },
+    {
+        "name": "C",
+        "price": 8.50,
+        "delivery_time": 15,
+        "quality": 8.5,
+        "origin": "Cote d'Ivoire",
+        "currency": "USD",
+        "experience": 0,
+        "data_reliability": 0.6
+    }
+]
+
+c) Tables de mapping (origine, devise, etc.)
+On a besoin de transformer des infos qualitatives en scores.
+
+Exemple :
+origin_scores = {
+    "Cote d'Ivoire": 0.9,
+    "Ghana": 0.85,
+    "Autre": 0.6
+}
+
+currency_risk_scores = {
+    "USD": 0.7,   # risque de change perçu
+    "EUR": 0.9,
+    "Autre": 0.5
+}
