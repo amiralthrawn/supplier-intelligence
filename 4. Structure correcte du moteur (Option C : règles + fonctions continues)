@@ -1,0 +1,152 @@
+A. Dynamic Weights
+(pondérations dynamiques)
+
+Les préférences du client sont le cadre :
+
+python
+client_weights = {
+    "price": 0.50,
+    "quality": 0.20,
+    "delivery": 0.20,
+    "risk": 0.10
+}
+Mais le contexte les modifie :
+
+Exemple :
+Stock ↓
+Marché ↑
+Volatilité ↑
+
+→ Le délai devient critique
+→ Le risque devient critique
+→ Le prix devient secondaire
+
+On obtient :
+
+python
+dynamic_weights = {
+    "price": 0.20,
+    "quality": 0.15,
+    "delivery": 0.40,
+    "risk": 0.25
+}
+Ce n’est pas arbitraire :
+C’est une fonction du contexte.
+
+🧩 B. Dynamic Constraints
+(contraintes dynamiques)
+
+
+Situation normale
+Diversification minimale : 0 %
+
+Délai max acceptable : 30 jours
+
+Stock minimum : 15 jours
+
+Situation de tension
+Diversification minimale : 20 %
+
+Délai max acceptable : 15 jours
+
+Stock minimum : 30 jours
+
+C’est exactement ce qu’on doit faire.
+
+Le moteur observe :
+
+stock coverage
+
+volatilité
+
+dépendance fournisseur
+
+tendance marché
+
+demande
+
+Et modifie les contraintes.
+
+🧩 C. Scenario Generation
+(génération automatique de scénarios)
+
+Le moteur génère :
+
+A seul
+
+B seul
+
+C seul
+
+A/B 80–20
+
+A/B 60–40
+
+A/C
+
+B/C
+
+Remplacer A
+
+Réduire A
+
+Augmenter B
+
+Attendre
+
+Négocier
+
+etc.
+
+Mais surtout :
+les scénarios dépendent du contexte.
+
+Exemple :
+Stock ↓
+Marché ↑
+Volatilité ↑
+
+→ Le moteur génère automatiquement :
+
+sécuriser immédiatement auprès de B
+
+augmenter temporairement B
+
+réduire A
+
+diversifier A → B
+
+éviter C (délai trop long)
+
+éviter d’attendre
+
+éviter les scénarios risqués
+
+
+D. Probabilistic Evaluation
+(Monte Carlo + distributions)
+
+Pour chaque scénario :
+
+10 000 simulations
+
+distributions de résultats
+
+Expected Outcome
+
+Probability of Success
+
+Risk of Failure
+
+Confidence Level
+
+Exemple :
+
+
+| Scénario | Probabilité de succès |
+| --- | --- |
+| A seul | 31 % |
+| A/B 80–20 | 42 % |
+| A/B 60–40 | 61 % |
+| B seul | 47 % |
+| Attendre | 28 % |
