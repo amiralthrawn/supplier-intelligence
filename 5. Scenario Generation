@@ -11,7 +11,7 @@ Market Context
 Operational Context
 
 Les scénarios ne sont pas encore évalués (Monte Carlo viendra après).
-Ici, on génère simplement les options possibles.
+Ici, je génère simplement les options possibles.
 
 
 1. Structure des scénarios
@@ -94,3 +94,32 @@ marché haussier
 volatilité élevée
 
 dépendance forte
+
+
+
+
+📊 4. Résultat attendu
+Avec ton contexte, je devrais voir :
+
+Code
+A_solo
+B_solo
+C_solo
+A_B_80_20
+A_B_60_40
+A_C_80_20
+A_C_60_40
+B_C_80_20
+B_C_60_40
+reduce_A_20
+reduce_A_40
+secure_B
+negotiate_A
+
+Note :
+
+secure_C ne sera pas généré car délai = 30 jours > max_delivery_days = 15
+
+wait ne sera pas généré car stock coverage = 14 < min_stock_coverage_days = 23.5
+
+➡️ Le moteur génère uniquement des scénarios cohérents avec le contexte.
