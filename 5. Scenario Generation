@@ -1,0 +1,96 @@
+Créer une fonction qui génère automatiquement des scénarios pertinents, réalistes, contextuels, en utilisant :
+
+Dynamic Weights
+
+Dynamic Constraints
+
+Supplier Intelligence
+
+Market Context
+
+Operational Context
+
+Les scénarios ne sont pas encore évalués (Monte Carlo viendra après).
+Ici, on génère simplement les options possibles.
+
+
+1. Structure des scénarios
+Un scénario est une action décisionnelle :
+
+python
+{
+    "name": "A_B_80_20",
+    "allocation": {"A": 0.8, "B": 0.2},
+    "type": "diversification",
+    "reason": "reduce dependency and improve delivery time"
+}
+Chaque scénario doit respecter :
+
+min_diversification
+
+max_delivery_days
+
+min_stock_coverage_days
+
+Et doit être cohérent avec :
+
+dépendance fournisseur,
+
+stock coverage,
+
+volatilité,
+
+marché haussier / baissier,
+
+délais des fournisseurs.
+
+2. Logique de génération
+A. Scénarios “simples”
+A seul
+
+B seul
+
+C seul
+
+B. Scénarios de diversification
+Seulement si :
+
+min_diversification > 0
+
+On génère :
+
+A/B 80–20
+
+A/B 60–40
+
+A/C 80–20
+
+B/C 80–20
+
+C. Scénarios de réduction de dépendance
+Si dépendance A > 60 % :
+
+réduire A de 20 %
+
+réduire A de 40 %
+
+D. Scénarios de sécurisation
+Si stock coverage < min_stock_coverage_days :
+
+augmenter B
+
+augmenter C (si délai acceptable)
+
+E. Scénarios d’attente
+Seulement si :
+
+stock_coverage_days > min_stock_coverage_days
+
+F. Scénarios de négociation
+Toujours possible, mais plus pertinent si :
+
+marché haussier
+
+volatilité élevée
+
+dépendance forte
