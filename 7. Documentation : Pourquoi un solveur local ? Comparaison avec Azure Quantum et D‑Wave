@@ -1,0 +1,41 @@
+1. Contexte du projet : pourquoi un solveur quantique ?
+Mon projet vise à comparer :
+
+une optimisation classique (Monte Carlo + heuristiques)
+
+une optimisation quantique (QUBO + annealing)
+
+L’objectif est de montrer :
+
+comment un problème de décision fournisseur peut être formulé en QUBO,
+
+comment un solveur quantique ou quantique‑inspiré peut l’optimiser,
+
+et comment cela se compare à une approche classique.
+
+C’est exactement ce que font les POC en optimisation quantique dans l’industrie.
+
+
+Voici le point clé :
+
+Les solveurs hybrides Azure Quantum et D‑Wave utilisent déjà du simulated annealing classique.
+
+C’est confirmé par la littérature scientifique :
+
+Quantum annealing et simulated annealing partagent la même structure mathématique (matrice de transition ↔ Hamiltonien) 
+
+Les solveurs hybrides D‑Wave combinent annealing classique + heuristiques + annealing quantique 
+
+Les performances des solveurs quantiques sont souvent proches des solveurs classiques sur des QUBO de petite taille 
+
+Donc :
+
+✔ Pour un QUBO de petite taille (comme le tien),
+✔ un solveur local donne une solution très similaire à Azure Quantum ou D‑Wave Hybrid.
+Je peux donc scientifiquement comparer :
+
+mon solveur classique,
+
+mon solveur QUBO local,
+
+et dire que cela représente une comparaison classique vs quantique‑inspiré.
